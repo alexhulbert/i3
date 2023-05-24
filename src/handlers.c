@@ -814,22 +814,6 @@ static void handle_client_message(xcb_client_message_event_t *event) {
         } else {
             DLOG("Not handling WM_CHANGE_STATE request. (window = %08x, state = %d)\n", event->window, event->data.data32[0]);
         }
-    } else if (event->type == A__NET_CURRENT_DESKTOP) {
-        /* This request is used by pagers and bars to change the current
-         * desktop likely as a result of some user action. We interpret this as
-         * a request to focus the given workspace. See
-         * https://standards.freedesktop.org/wm-spec/latest/ar01s03.html#idm140251368135008
-         * */
-        DLOG("Request to change current desktop to index %d\n", event->data.data32[0]);
-        Con *ws = ewmh_get_workspace_by_index(event->data.data32[0]);
-        if (ws == NULL) {
-            ELOG("Could not determine workspace for this index, ignoring request.\n");
-            return;
-        }
-
-        DLOG("Handling request to focus workspace %s\n", ws->name);
-        workspace_show(ws);
-        tree_render();
     } else if (event->type == A__NET_WM_DESKTOP) {
         uint32_t index = event->data.data32[0];
         DLOG("Request to move window %d to EWMH desktop index %d\n", event->window, index);
